@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: careerflow
+      POSTGRES_USER: careerflow
+      POSTGRES_PASSWORD: careerflow
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerflow -d careerflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  python-service:
+    build: ./python-ml-service
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend-go
+    environment:
+      APP_ENV: development
+      PORT: 8080
+      DATABASE_URL: postgres://careerflow:careerflow@postgres:5432/careerflow?sslmode=disable
+      JWT_SECRET: change-me
+      PYTHON_SERVICE_URL: http://python-service:8000
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      python-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8081
+    ports:
+      - "5174:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

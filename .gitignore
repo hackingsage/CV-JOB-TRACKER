@@ -1,0 +1,22 @@
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Python
+python-ml-service/.venv/
+python-ml-service/__pycache__/
+python-ml-service/.pytest_cache/
+
+# Go
+backend-go/bin/
+backend-go/.cache/
+
+# Env
+.env
+.env.*
+frontend/.env
+backend-go/.env
+python-ml-service/.env
+
+# OS
+.DS_Store
