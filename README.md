@@ -103,7 +103,7 @@ cv-job-tracker/
 ### Run with Docker
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/hackingsage/CV-JOB-TRACKER.git
 cd cv-job-tracker
 ./scripts/dev.sh
 ```
